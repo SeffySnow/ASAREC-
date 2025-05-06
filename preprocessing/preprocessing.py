@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 import matplotlib.pyplot as plt
 
+
 def process_data(data, min_user, min_item, min_review_length=5, output_dir=None, abbr=None):
     data = data[["rating", "text", "parent_asin", "user_id"]]
     print("Initial dataset statistics:")
@@ -41,7 +42,7 @@ def process_data(data, min_user, min_item, min_review_length=5, output_dir=None,
     return data
 
 
-def preprocess_domain(df, output_dir, fn):
+def preprocess_domain(df, output_dir, abbr):
     df = df.sample(frac=1).reset_index(drop=True)
     df['text'] = df['text'].astype(str)
     df = df.drop_duplicates().reset_index(drop=True)
@@ -52,9 +53,9 @@ def preprocess_domain(df, output_dir, fn):
     df['item_enc'] = item_le.fit_transform(df['parent_asin'])
 
     pd.DataFrame({'user_enc': range(len(user_le.classes_)), 'user_id': user_le.classes_}) \
-        .to_csv(os.path.join(output_dir, f"{fn}_user_enc_to_id.csv"), index=False)
+        .to_csv(os.path.join(output_dir, f"{abbr}_user_enc_to_id.csv"), index=False)
     pd.DataFrame({'item_enc': range(len(item_le.classes_)), 'parent_asin': item_le.classes_}) \
-        .to_csv(os.path.join(output_dir, f"{fn}_item_enc_to_asin.csv"), index=False)
+        .to_csv(os.path.join(output_dir, f"{abbr}_item_enc_to_asin.csv"), index=False)
     return df
 
 
@@ -90,7 +91,7 @@ def leave_one_out_split_with_validation(df, output_dir, abbr, random_state=None)
 def main():
     parser = argparse.ArgumentParser(description='Process and split review datasets')
     parser.add_argument('input_path', type=str, help='Path to input CSV file')
-    parser.add_argument('folder_name', type=str, help='Name for output folder')
+    parser.add_argument('folder', type=str, help='Folder name under dataset/')
     parser.add_argument('abbr', type=str, help='Abbreviation for file names')
     parser.add_argument('--min_user', type=int, default=15)
     parser.add_argument('--min_item', type=int, default=30)
@@ -98,15 +99,16 @@ def main():
     parser.add_argument('--random_state', type=int, default=42)
     args = parser.parse_args()
 
-    output_dir = os.path.join('data', args.folder_name)
+   
+    output_dir = os.path.join('..', 'dataset', args.folder)
     os.makedirs(output_dir, exist_ok=True)
 
     data = pd.read_csv(args.input_path)
     filtered = process_data(data, args.min_user, args.min_item, args.min_review_length, output_dir, args.abbr)
     filtered = filtered.drop_duplicates(subset=['user_id', 'parent_asin'])
-    filtered.to_csv(os.path.join(output_dir, f"{args.folder_name}.csv"), index=False)
+    filtered.to_csv(os.path.join(output_dir, f"{args.folder}.csv"), index=False)
 
-    df_enc = preprocess_domain(filtered, output_dir, args.folder_name)
+    df_enc = preprocess_domain(filtered, output_dir, args.abbr)
     leave_one_out_split_with_validation(df_enc, output_dir, args.abbr, args.random_state)
 
     print("Done. Files in:", output_dir)

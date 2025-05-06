@@ -23,7 +23,8 @@ def clean_text(text):
 def analyze_aspect_sentiment_batched(sentences, aspects, tokenizer, model, device, max_length=128):
     inputs = tokenizer(
         [f"[CLS] {s} [SEP] {a} [SEP]" for s, a in zip(sentences, aspects)],
-        return_tensors="pt", padding=True, truncation=True, max_length=max_length
+        return_tensors="pt",
+        padding=True, truncation=True, max_length=max_length
     ).to(device)
     with torch.no_grad():
         outputs = model(**inputs)
@@ -56,7 +57,9 @@ def analyze_reviews(df, aspect_list, tokenizer, model, device, batch_size, sub_b
 
 # Main extraction function
 def extract_aspect_sentiments(folder, abbr, batch_size=32, sub_batch_size=16):
-    data_dir = os.path.join('data', folder)
+    #
+    data_dir = os.path.join('..', 'dataset', folder)
+
     # Load aspects from aspects.txt
     aspects_file = os.path.join(data_dir, 'aspects.txt')
     with open(aspects_file, 'r') as f:
@@ -78,15 +81,19 @@ def extract_aspect_sentiments(folder, abbr, batch_size=32, sub_batch_size=16):
     scores_df = pd.DataFrame.from_dict(scores, orient='index', columns=aspects)
 
     # Merge and save
-    merged = pd.concat([df[['user_enc','item_enc','rating']].reset_index(drop=True), scores_df.reset_index(drop=True)], axis=1)
+    merged = pd.concat([
+        df[['user_enc', 'item_enc', 'rating']].reset_index(drop=True),
+        scores_df.reset_index(drop=True)
+    ], axis=1)
     out_path = os.path.join(data_dir, f'review_{abbr}.csv')
     merged.to_csv(out_path, index=False)
     print(f"Saved review file: {out_path}")
 
 # CLI
+
 def main():
-    parser = argparse.ArgumentParser(description='Extract ABSA review sentiments from aspects.txt')
-    parser.add_argument('folder', type=str, help='Folder name under data/')
+    parser = argparse.ArgumentParser(description='Extract ABSA sentiments')
+    parser.add_argument('folder', type=str, help='Folder name under dataset/')
     parser.add_argument('abbr', type=str, help='Abbreviation for file names')
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--sub_batch_size', type=int, default=16)
