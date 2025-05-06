@@ -1,0 +1,4 @@
+__pycache__/
+venv/
+dataset/
+.best_w_6.keras
