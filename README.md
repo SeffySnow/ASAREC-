@@ -27,9 +27,9 @@ The pipeline consists of three main stages:
 ## 📂 Repository Structure
 
 1. Dowload the datasets.
-#Datasets: 
-* https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/review_categories/Books.jsonl.gz
-* https://datarepo.eng.ucsd.edu/mcauley_group/data/amazon_2023/raw/review_categories/Movies_and_TV.jsonl.gz
+#Datasets (Books, Movie): 
+* https://cseweb.ucsd.edu/~jmcauley/datasets.html#amazon_reviews
+* https://amazon-reviews-2023.github.io/
 
 2. Installing the dependencies :
 
@@ -42,6 +42,16 @@ The pipeline consists of three main stages:
 5. Model training (profile construction, feature engineering & MLP)
 
 6. The results will be saved in datasets/"dataset_name"/results.json
+
+
+## Citation:
+* 2023 version
+Bridging Language and Items for Retrieval and Recommendation
+Yupeng Hou, Jiacheng Li, Zhankui He, An Yan, Xiusi Chen, Julian McAuley
+arXiv
+
+
+
 
 
 
